@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#a66d8c">
+<meta name="theme-color" content="#007b26">
 <meta name="description" content="decayTime：一個由 1440 行寫成的時鐘，每過一分鐘就少一行。">
-<title>decayTime</title>
+<title>⏰ --:--</title>
 <link rel="icon" href="data:,">
 <style>
-  html, body { margin: 0; height: 100%; overflow: hidden; background: #a66d8c; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #007b26; }
   iframe { position: fixed; inset: 0; width: 100%; height: 100%; border: 0; display: block; background: transparent; }
   iframe.next { visibility: hidden; }
   .note { position: fixed; inset: auto 16px 16px; font: 12px/1.5 ui-monospace, Menlo, monospace; color: #fff; }
@@ -21,8 +21,15 @@
   每次載入：今天過了 m 分鐘，就從 clock.html 隨機刪掉 m 行，把剩下的交給瀏覽器去解析。
   頁面開著的時候，每到整分再多刪一行；過了午夜一切歸零、重新完整。
   ?t=13:19 → 預覽那個時刻的毀壞程度（固定不再增加，每次重整都是新的隨機組合）。
-  ?src=clock-chaos.html → 換一個版本來毀壞（同資料夾內的 .html）。
+  ?src=clock_normal.html → 換一個版本來毀壞（同資料夾內的 .html）。
 */
+// the tab title always shows the real time, whatever state the clock is in
+(function title() {
+  const d = new Date();
+  document.title = '⏰ ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+  setTimeout(title, 1000 - (Date.now() % 1000) + 5);
+})();
+
 (async function () {
   const params = new URLSearchParams(location.search);
   const SOURCE = /^[\w.-]+\.html$/.test(params.get('src') || '') ? params.get('src') : 'clock.html';
