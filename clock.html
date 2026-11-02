@@ -1,0 +1,1440 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" style="background-color: #a66d8c">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#a66d8c">
+<meta name="description" content="decayTime：一個由 1440 行寫成的時鐘，每過一分鐘就少一行。">
+<title>decayTime</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders:opsz,wght@10..72,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zalando+Sans+SemiExpanded:wght@600&display=swap">
+<script>
+function lin(c) {
+return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+}
+function chan(h, n) {
+var k = (n + h / 60) % 6;
+return 1 - Math.max(0, Math.min(k, 4 - k, 1));
+}
+function pure(h) {
+return [chan(h, 5), chan(h, 3), chan(h, 1)];
+}
+function okHue(c) {
+var r, g, b, l, m, s, A, B;
+r = lin(c[0]);
+g = lin(c[1]);
+b = lin(c[2]);
+l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
+m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
+s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
+A = 1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s;
+B = 0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s;
+return (Math.atan2(B, A) * 180 / Math.PI + 360) % 360;
+}
+var H0 = okHue(pure(0));
+function wheel(h) {
+return (okHue(pure(h)) - H0 + 360) % 360;
+}
+function unwheel(u) {
+var lo = 0;
+var hi = 360;
+for (var i = 0; i < 26; i++) {
+var mid = (lo + hi) / 2;
+if (wheel(mid) < u) lo = mid;
+else hi = mid;
+}
+return lo;
+}
+function css(c, w) {
+var f = function (v) {
+return Math.round((v + (1 - v) * w) * 255);
+};
+return 'rgb(' + f(c[0]) + ', ' + f(c[1]) + ', ' + f(c[2]) + ')';
+}
+function pick(prev) {
+var c = null;
+for (var tries = 0; tries < 8; tries++) {
+c = {
+u: wheel(Math.random() * 360),
+w: 0.55 * Math.pow(Math.random(), 2)
+};
+if (!prev) break;
+if (Math.abs((c.u - prev.u + 540) % 360 - 180) > 40) break;
+}
+return c;
+}
+var BLANK = { u: 0, w: 1 };
+var P = [];
+P[0] = pick();
+P[1] = pick(P[0]);
+P[2] = pick(P[1]);
+P[3] = pick(P[2]);
+P[4] = pick(P[3]);
+P[5] = pick(P[4]);
+P[6] = pick(P[5]);
+P[7] = pick(P[6]);
+P[8] = pick(P[7]);
+P[9] = pick(P[8]);
+P[10] = pick(P[9]);
+P[11] = pick(P[10]);
+function ink(deg) {
+var x = ((deg % 360) + 360) % 360 / 30;
+var i = Math.floor(x);
+var t = x - i;
+var a = P[i % 12] || BLANK;
+var b = P[(i + 1) % 12] || BLANK;
+var d = (b.u - a.u + 540) % 360 - 180;
+var u = (a.u + d * t + 360) % 360;
+var w = a.w + (b.w - a.w) * t;
+return css(pure(unwheel(u)), w);
+}
+</script>
+<script>
+function paint(id, deg) {
+var el = document.getElementById(id);
+if (el) el.style.color = ink(deg);
+}
+document.addEventListener('DOMContentLoaded', function () {
+paint('t00', 0);
+paint('t01', 6);
+paint('t02', 12);
+paint('t03', 18);
+paint('t04', 24);
+paint('t05', 30);
+paint('t06', 36);
+paint('t07', 42);
+paint('t08', 48);
+paint('t09', 54);
+paint('t10', 60);
+paint('t11', 66);
+paint('t12', 72);
+paint('t13', 78);
+paint('t14', 84);
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+paint('t15', 90);
+paint('t16', 96);
+paint('t17', 102);
+paint('t18', 108);
+paint('t19', 114);
+paint('t20', 120);
+paint('t21', 126);
+paint('t22', 132);
+paint('t23', 138);
+paint('t24', 144);
+paint('t25', 150);
+paint('t26', 156);
+paint('t27', 162);
+paint('t28', 168);
+paint('t29', 174);
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+paint('t30', 180);
+paint('t31', 186);
+paint('t32', 192);
+paint('t33', 198);
+paint('t34', 204);
+paint('t35', 210);
+paint('t36', 216);
+paint('t37', 222);
+paint('t38', 228);
+paint('t39', 234);
+paint('t40', 240);
+paint('t41', 246);
+paint('t42', 252);
+paint('t43', 258);
+paint('t44', 264);
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+paint('t45', 270);
+paint('t46', 276);
+paint('t47', 282);
+paint('t48', 288);
+paint('t49', 294);
+paint('t50', 300);
+paint('t51', 306);
+paint('t52', 312);
+paint('t53', 318);
+paint('t54', 324);
+paint('t55', 330);
+paint('t56', 336);
+paint('t57', 342);
+paint('t58', 348);
+paint('t59', 354);
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+paint('n12', 0);
+paint('n1', 30);
+paint('n2', 60);
+paint('n3', 90);
+paint('n4', 120);
+paint('n5', 150);
+paint('n6', 180);
+paint('n7', 210);
+paint('n8', 240);
+paint('n9', 270);
+paint('n10', 300);
+paint('n11', 330);
+});
+</script>
+<script>
+var tint = document.querySelector('meta[name="theme-color"]');
+function hand(id, deg) {
+var el = document.getElementById(id);
+if (!el) return;
+el.style.rotate = deg + 'deg';
+if (window.ink) el.style.color = ink(deg);
+}
+function frame() {
+requestAnimationFrame(frame);
+var now = new Date();
+var s = now.getSeconds() + now.getMilliseconds() / 1000;
+var m = now.getMinutes() + s / 60;
+var h = now.getHours() % 12 + m / 60;
+if (window.ink) document.documentElement.style.setProperty('--s', ink(s * 6));
+hand('M', m * 6);
+hand('H', h * 30);
+hand('S', s * 6);
+if (tint) tint.content = getComputedStyle(document.documentElement).backgroundColor;
+}
+requestAnimationFrame(frame);
+</script>
+<script>requestAnimationFrame(function f() { var d = new Date(), el = document.getElementById('H'); if (el) el.style.rotate = (d.getHours() % 12 + d.getMinutes() / 60) * 30 + 'deg'; requestAnimationFrame(f); });</script>
+<script>requestAnimationFrame(function f() { var d = new Date(), el = document.getElementById('M'); if (el) el.style.rotate = (d.getMinutes() + d.getSeconds() / 60) * 6 + 'deg'; requestAnimationFrame(f); });</script>
+<script>requestAnimationFrame(function f() { var d = new Date(), el = document.getElementById('S'); if (el) el.style.rotate = (d.getSeconds() + d.getMilliseconds() / 1000) * 6 + 'deg'; requestAnimationFrame(f); });</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+var day = String(new Date().getDate());
+var a = document.getElementById('d1');
+var b = document.getElementById('d2');
+if (a) a.textContent = day.length > 1 ? day.charAt(0) : '';
+if (b) b.textContent = day.charAt(day.length - 1);
+});
+</script>
+<style>
+:root {
+--D: calc(100vmin * 401 / 388);
+--u: calc(var(--D) / 401);
+--s: #ffa8d8;
+--shade: 65%;
+--bg: color-mix(in srgb, var(--s) var(--shade), #000);
+--well: color-mix(in srgb, var(--bg) var(--shade), #000);
+--grey: #eeeeee;
+--ink: #595959;
+--ring: calc(190 * var(--u));
+--tick-w: calc(1 * var(--u));
+--hour-w: calc(6 * var(--u));
+--tick-h: calc(8 * var(--u));
+--num-size: calc(72 * var(--u));
+--hand-w: calc(8 * var(--u));
+--h-len: calc(92 * var(--u));
+--h-tail: calc(21 * var(--u));
+--h-cap: calc(20 * var(--u));
+--m-len: calc(134 * var(--u));
+--m-tail: calc(23.3 * var(--u));
+--m-cap: calc(28 * var(--u));
+--s-w: calc(1 * var(--u));
+--s-len: calc(188.1 * var(--u));
+--s-tail: calc(18.9 * var(--u));
+--s-cap: calc(10 * var(--u));
+--date-x: calc(80.5 * var(--u));
+--date-w: calc(53 * var(--u));
+--date-h: calc(36 * var(--u));
+--date-r: calc(10 * var(--u));
+--date-size: calc(28 * var(--u));
+--word-y: calc(58 * var(--u));
+--word-size: calc(15 * var(--u));
+}
+@media (orientation: portrait) {
+:root {
+--D: calc(100vw * 401 / 388);
+}
+}
+@media (orientation: landscape) {
+:root {
+--D: calc(100vh * 401 / 388);
+}
+}
+html {
+height: 100%;
+background-color: var(--bg, #a66d8c) !important;
+}
+body {
+margin: 0;
+min-height: 100%;
+padding: 12px;
+box-sizing: border-box;
+overflow: hidden;
+font-family: ui-monospace, Menlo, Consolas, monospace;
+font-size: 9px;
+line-height: 1.5;
+color: rgba(255, 255, 255, 0.55);
+word-break: break-all;
+-webkit-text-size-adjust: 100%;
+-webkit-font-smoothing: antialiased;
+text-rendering: geometricPrecision;
+font-synthesis: none;
+-webkit-user-select: none;
+user-select: none;
+-webkit-tap-highlight-color: transparent;
+}
+.face {
+position: fixed;
+left: 50%;
+top: 50%;
+width: var(--D);
+height: var(--D);
+margin-left: calc(var(--D) / -2);
+margin-top: calc(var(--D) / -2);
+pointer-events: none;
+}
+.dial {
+border-radius: 50%;
+background-color: var(--well, #6c4759);
+}
+</style>
+</head>
+<body>
+<div class="face dial"></div>
+<div class="face ticks">
+<style>
+.t {
+position: absolute;
+transform-origin: 0 0;
+}
+#t00 {
+left: 50%;
+top: 50%;
+width: var(--hour-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 0deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #ff4f00;
+}
+#t01 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 6deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #fe3c8d;
+}
+#t02 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 12deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #eb0bfd;
+}
+#t03 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 18deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #937ffe;
+}
+#t04 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 24deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #2e9afe;
+}
+#t05 {
+left: 50%;
+top: 50%;
+width: var(--hour-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 30deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #12a9c4;
+}
+#t06 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 36deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #0bbcb7;
+}
+#t07 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 42deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #0dcf9f;
+}
+#t08 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 48deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #0fe541;
+}
+#t09 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 54deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #b7de0e;
+}
+#t10 {
+left: 50%;
+top: 50%;
+width: var(--hour-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 60deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #f9d900;
+}
+#t11 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 66deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #ffbd47;
+}
+#t12 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 72deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #fea256;
+}
+#t13 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 78deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #fe845f;
+}
+#t14 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 84deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #fe5f70;
+}
+</style>
+<i class="t h" id="t00">
+</i>
+<i class="t" id="t01">
+</i>
+<i class="t" id="t02">
+</i>
+<i class="t" id="t03">
+</i>
+<i class="t" id="t04">
+</i>
+<i class="t h" id="t05">
+</i>
+<i class="t" id="t06">
+</i>
+<i class="t" id="t07">
+</i>
+<i class="t" id="t08">
+</i>
+<i class="t" id="t09">
+</i>
+<i class="t h" id="t10">
+</i>
+<i class="t" id="t11">
+</i>
+<i class="t" id="t12">
+</i>
+<i class="t" id="t13">
+</i>
+<i class="t" id="t14">
+</i>
+<style>
+#t15 {
+left: 50%;
+top: 50%;
+width: var(--hour-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 90deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #ff0090;
+}
+#t16 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 96deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #ee09ad;
+}
+#t17 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 102deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #dc08ca;
+}
+#t18 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 108deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #c708e5;
+}
+#t19 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 114deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #af08fd;
+}
+#t20 {
+left: 50%;
+top: 50%;
+width: var(--hour-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 120deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #8e35ff;
+}
+#t21 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 126deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #4370fe;
+}
+#t22 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 132deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #0791cb;
+}
+#t23 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 138deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #08a0ae;
+}
+#t24 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 144deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #09ad92;
+}
+#t25 {
+left: 50%;
+top: 50%;
+width: var(--hour-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 150deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #00bd3a;
+}
+#t26 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 156deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #5cae07;
+}
+#t27 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 162deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #7b9f06;
+}
+#t28 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 168deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #8a9106;
+}
+#t29 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 174deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #928505;
+}
+</style>
+<i class="t h" id="t15">
+</i>
+<i class="t" id="t16">
+</i>
+<i class="t" id="t17">
+</i>
+<i class="t" id="t18">
+</i>
+<i class="t" id="t19">
+</i>
+<i class="t h" id="t20">
+</i>
+<i class="t" id="t21">
+</i>
+<i class="t" id="t22">
+</i>
+<i class="t" id="t23">
+</i>
+<i class="t" id="t24">
+</i>
+<i class="t h" id="t25">
+</i>
+<i class="t" id="t26">
+</i>
+<i class="t" id="t27">
+</i>
+<i class="t" id="t28">
+</i>
+<i class="t" id="t29">
+</i>
+<style>
+#t30 {
+left: 50%;
+top: 50%;
+width: var(--hour-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 180deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #957a17;
+}
+#t31 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 186deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #a28e06;
+}
+#t32 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 192deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #aca308;
+}
+#t33 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 198deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #b2ba0a;
+}
+#t34 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 204deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #b4d20c;
+}
+#t35 {
+left: 50%;
+top: 50%;
+width: var(--hour-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 210deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #aded00;
+}
+#t36 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 216deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #f0d20e;
+}
+#t37 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 222deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #ffc27a;
+}
+#t38 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 228deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #ffbaa0;
+}
+#t39 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 234deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #ffb3b9;
+}
+#t40 {
+left: 50%;
+top: 50%;
+width: var(--hour-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 240deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #ffa8d8;
+}
+#t41 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 246deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #ffaacb;
+}
+#t42 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 252deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #ffaac0;
+}
+#t43 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 258deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #feabb5;
+}
+#t44 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 264deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #feabaa;
+}
+</style>
+<i class="t h" id="t30">
+</i>
+<i class="t" id="t31">
+</i>
+<i class="t" id="t32">
+</i>
+<i class="t" id="t33">
+</i>
+<i class="t" id="t34">
+</i>
+<i class="t h" id="t35">
+</i>
+<i class="t" id="t36">
+</i>
+<i class="t" id="t37">
+</i>
+<i class="t" id="t38">
+</i>
+<i class="t" id="t39">
+</i>
+<i class="t h" id="t40">
+</i>
+<i class="t" id="t41">
+</i>
+<i class="t" id="t42">
+</i>
+<i class="t" id="t43">
+</i>
+<i class="t" id="t44">
+</i>
+<style>
+#t45 {
+left: 50%;
+top: 50%;
+width: var(--hour-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 270deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #e4b8b1;
+}
+#t46 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 276deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #ffb87e;
+}
+#t47 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 282deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #f8c90e;
+}
+#t48 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 288deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #bbe90f;
+}
+#t49 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 294deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #49ff9c;
+}
+#t50 {
+left: 50%;
+top: 50%;
+width: var(--hour-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 300deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #31ffee;
+}
+#t51 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 306deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #10e2ee;
+}
+#t52 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 312deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #0dc5e9;
+}
+#t53 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 318deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #09a7e4;
+}
+#t54 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 324deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #0688e6;
+}
+#t55 {
+left: 50%;
+top: 50%;
+width: var(--hour-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 330deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #2857ff;
+}
+#t56 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 336deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #8240fe;
+}
+#t57 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 342deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #c008e7;
+}
+#t58 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 348deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #e608a9;
+}
+#t59 {
+left: 50%;
+top: 50%;
+width: var(--tick-w);
+height: var(--tick-h);
+background: currentColor;
+rotate: 354deg;
+transform: translate(-50%, calc(var(--ring) * -1));
+color: #fe1e67;
+}
+</style>
+<i class="t h" id="t45">
+</i>
+<i class="t" id="t46">
+</i>
+<i class="t" id="t47">
+</i>
+<i class="t" id="t48">
+</i>
+<i class="t" id="t49">
+</i>
+<i class="t h" id="t50">
+</i>
+<i class="t" id="t51">
+</i>
+<i class="t" id="t52">
+</i>
+<i class="t" id="t53">
+</i>
+<i class="t" id="t54">
+</i>
+<i class="t h" id="t55">
+</i>
+<i class="t" id="t56">
+</i>
+<i class="t" id="t57">
+</i>
+<i class="t" id="t58">
+</i>
+<i class="t" id="t59">
+</i>
+</div>
+<div class="face numbers">
+<style>
+.n s {
+text-decoration: none;
+font-variation-settings: 'opsz' 72;
+}
+#n12 {
+position: absolute;
+left: 50%;
+top: 50%;
+font-family: 'Big Shoulders', 'Arial Narrow', sans-serif;
+font-size: var(--num-size);
+font-weight: 400;
+line-height: normal;
+letter-spacing: -0.05em;
+display: flex;
+-webkit-text-stroke: calc(2 * var(--u)) rgba(255, 255, 255, 0.25);
+paint-order: stroke fill;
+transform-origin: 0 0;
+rotate: 0deg;
+transform: translate(calc(-50% - 2 * var(--u)), calc(-188.9 * var(--u)));
+color: #ff4f00;
+}
+#n1 {
+position: absolute;
+left: 50%;
+top: 50%;
+font-family: 'Big Shoulders', 'Arial Narrow', sans-serif;
+font-size: var(--num-size);
+font-weight: 400;
+line-height: normal;
+letter-spacing: -0.05em;
+display: flex;
+-webkit-text-stroke: calc(2 * var(--u)) rgba(255, 255, 255, 0.25);
+paint-order: stroke fill;
+transform-origin: 0 0;
+rotate: 30deg;
+transform: translate(calc(-50% - 1.42 * var(--u)), calc(-189.4 * var(--u)));
+color: #12a9c4;
+}
+#n2 {
+position: absolute;
+left: 50%;
+top: 50%;
+font-family: 'Big Shoulders', 'Arial Narrow', sans-serif;
+font-size: var(--num-size);
+font-weight: 400;
+line-height: normal;
+letter-spacing: -0.05em;
+display: flex;
+-webkit-text-stroke: calc(2 * var(--u)) rgba(255, 255, 255, 0.25);
+paint-order: stroke fill;
+transform-origin: 0 0;
+rotate: 60deg;
+transform: translate(calc(-50% - 2.38 * var(--u)), calc(-188.9 * var(--u)));
+color: #f9d900;
+}
+</style>
+<b class="n" id="n12">
+<s>1</s>
+<s>2</s>
+</b>
+<b class="n" id="n1">
+<s>1</s>
+</b>
+<b class="n" id="n2">
+<s>2</s>
+</b>
+<style>
+#n3 {
+position: absolute;
+left: 50%;
+top: 50%;
+font-family: 'Big Shoulders', 'Arial Narrow', sans-serif;
+font-size: var(--num-size);
+font-weight: 400;
+line-height: normal;
+letter-spacing: -0.05em;
+display: flex;
+-webkit-text-stroke: calc(2 * var(--u)) rgba(255, 255, 255, 0.25);
+paint-order: stroke fill;
+transform-origin: 0 0;
+rotate: 90deg;
+transform: translate(calc(-50% - 1.24 * var(--u)), calc(-189.4 * var(--u)));
+color: #ff0090;
+}
+#n4 {
+position: absolute;
+left: 50%;
+top: 50%;
+font-family: 'Big Shoulders', 'Arial Narrow', sans-serif;
+font-size: var(--num-size);
+font-weight: 400;
+line-height: normal;
+letter-spacing: -0.05em;
+display: flex;
+-webkit-text-stroke: calc(2 * var(--u)) rgba(255, 255, 255, 0.25);
+paint-order: stroke fill;
+transform-origin: 0 0;
+rotate: 120deg;
+transform: translate(calc(-50% - 1.23 * var(--u)), calc(-189.4 * var(--u)));
+color: #8e35ff;
+}
+#n5 {
+position: absolute;
+left: 50%;
+top: 50%;
+font-family: 'Big Shoulders', 'Arial Narrow', sans-serif;
+font-size: var(--num-size);
+font-weight: 400;
+line-height: normal;
+letter-spacing: -0.05em;
+display: flex;
+-webkit-text-stroke: calc(2 * var(--u)) rgba(255, 255, 255, 0.25);
+paint-order: stroke fill;
+transform-origin: 0 0;
+rotate: 150deg;
+transform: translate(calc(-50% - 1.77 * var(--u)), calc(-189.4 * var(--u)));
+color: #00bd3a;
+}
+</style>
+<b class="n" id="n3">
+<s>3</s>
+</b>
+<b class="n" id="n4">
+<s>4</s>
+</b>
+<b class="n" id="n5">
+<s>5</s>
+</b>
+<style>
+#n6 {
+position: absolute;
+left: 50%;
+top: 50%;
+font-family: 'Big Shoulders', 'Arial Narrow', sans-serif;
+font-size: var(--num-size);
+font-weight: 400;
+line-height: normal;
+letter-spacing: -0.05em;
+display: flex;
+-webkit-text-stroke: calc(2 * var(--u)) rgba(255, 255, 255, 0.25);
+paint-order: stroke fill;
+transform-origin: 0 0;
+rotate: 180deg;
+transform: translate(calc(-50% - 2.06 * var(--u)), calc(-189 * var(--u)));
+color: #957a17;
+}
+#n7 {
+position: absolute;
+left: 50%;
+top: 50%;
+font-family: 'Big Shoulders', 'Arial Narrow', sans-serif;
+font-size: var(--num-size);
+font-weight: 400;
+line-height: normal;
+letter-spacing: -0.05em;
+display: flex;
+-webkit-text-stroke: calc(2 * var(--u)) rgba(255, 255, 255, 0.25);
+paint-order: stroke fill;
+transform-origin: 0 0;
+rotate: 210deg;
+transform: translate(calc(-50% - 1.87 * var(--u)), calc(-189.4 * var(--u)));
+color: #aded00;
+}
+#n8 {
+position: absolute;
+left: 50%;
+top: 50%;
+font-family: 'Big Shoulders', 'Arial Narrow', sans-serif;
+font-size: var(--num-size);
+font-weight: 400;
+line-height: normal;
+letter-spacing: -0.05em;
+display: flex;
+-webkit-text-stroke: calc(2 * var(--u)) rgba(255, 255, 255, 0.25);
+paint-order: stroke fill;
+transform-origin: 0 0;
+rotate: 240deg;
+transform: translate(calc(-50% - 1.78 * var(--u)), calc(-188.9 * var(--u)));
+color: #ffa8d8;
+}
+</style>
+<b class="n" id="n6">
+<s>6</s>
+</b>
+<b class="n" id="n7">
+<s>7</s>
+</b>
+<b class="n" id="n8">
+<s>8</s>
+</b>
+<style>
+#n9 {
+position: absolute;
+left: 50%;
+top: 50%;
+font-family: 'Big Shoulders', 'Arial Narrow', sans-serif;
+font-size: var(--num-size);
+font-weight: 400;
+line-height: normal;
+letter-spacing: -0.05em;
+display: flex;
+-webkit-text-stroke: calc(2 * var(--u)) rgba(255, 255, 255, 0.25);
+paint-order: stroke fill;
+transform-origin: 0 0;
+rotate: 270deg;
+transform: translate(calc(-50% - 1.53 * var(--u)), calc(-189 * var(--u)));
+color: #e4b8b1;
+}
+#n10 {
+position: absolute;
+left: 50%;
+top: 50%;
+font-family: 'Big Shoulders', 'Arial Narrow', sans-serif;
+font-size: var(--num-size);
+font-weight: 400;
+line-height: normal;
+letter-spacing: -0.05em;
+display: flex;
+-webkit-text-stroke: calc(2 * var(--u)) rgba(255, 255, 255, 0.25);
+paint-order: stroke fill;
+transform-origin: 0 0;
+rotate: 300deg;
+transform: translate(calc(-50% - 1.45 * var(--u)), calc(-188.9 * var(--u)));
+color: #31ffee;
+}
+#n11 {
+position: absolute;
+left: 50%;
+top: 50%;
+font-family: 'Big Shoulders', 'Arial Narrow', sans-serif;
+font-size: var(--num-size);
+font-weight: 400;
+line-height: normal;
+letter-spacing: -0.05em;
+display: flex;
+-webkit-text-stroke: calc(2 * var(--u)) rgba(255, 255, 255, 0.25);
+paint-order: stroke fill;
+transform-origin: 0 0;
+rotate: 330deg;
+transform: translate(calc(-50% - 1.44 * var(--u)), calc(-189.4 * var(--u)));
+color: #2857ff;
+}
+</style>
+<b class="n" id="n9">
+<s>9</s>
+</b>
+<b class="n" id="n10">
+<s>1</s>
+<s>0</s>
+</b>
+<b class="n" id="n11">
+<s>1</s>
+<s>1</s>
+</b>
+</div>
+<style>
+.date {
+position: fixed;
+left: 50%;
+top: 50%;
+width: var(--date-w);
+height: var(--date-h);
+margin-left: calc(var(--date-x) - var(--date-w) / 2);
+margin-top: calc(var(--date-h) / -2);
+display: flex;
+align-items: center;
+justify-content: center;
+border-radius: var(--date-r);
+background: var(--grey);
+color: var(--ink);
+font-family: 'Zalando Sans SemiExpanded', 'Arial', sans-serif;
+font-size: var(--date-size);
+font-weight: 600;
+font-variant-numeric: tabular-nums;
+line-height: normal;
+}
+.date s {
+text-decoration: none;
+}
+.confession {
+position: fixed;
+left: 50%;
+top: 50%;
+margin: 0;
+display: flex;
+transform: translate(-50%, var(--word-y));
+font-family: 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
+font-size: var(--word-size);
+letter-spacing: 0.3em;
+white-space: nowrap;
+color: var(--grey);
+}
+.confession s {
+text-decoration: none;
+}
+</style>
+<div class="date">
+<s id="d1">2</s>
+<s id="d2">7</s>
+</div>
+<!--
+<p class="confession">
+<s>救</s>
+<s>贖</s>
+<s>是</s>
+<s>更</s>
+<s>大</s>
+<s>的</s>
+<s>諉</s>
+<s>過</s>
+<s>。</s>
+</p>
+-->
+<style>
+.hand {
+position: fixed;
+left: 50%;
+top: 50%;
+width: 0;
+height: 0;
+}
+.bar,
+.cap {
+position: absolute;
+background: currentColor;
+}
+#M {
+color: #ffa8d8;
+rotate: 240deg;
+}
+#M .bar {
+left: calc(var(--hand-w) / -2);
+top: calc(var(--m-len) * -1);
+width: var(--hand-w);
+height: calc(var(--m-len) + var(--m-tail));
+border-radius: calc(var(--hand-w) / 2);
+}
+#M .cap {
+left: calc(var(--m-cap) / -2);
+top: calc(var(--m-cap) / -2);
+width: var(--m-cap);
+height: var(--m-cap);
+border-radius: 50%;
+}
+#H {
+color: #ff4f00;
+rotate: 0deg;
+}
+#H .bar {
+left: calc(var(--hand-w) / -2);
+top: calc(var(--h-len) * -1);
+width: var(--hand-w);
+height: calc(var(--h-len) + var(--h-tail));
+border-radius: calc(var(--hand-w) / 2);
+}
+#H .cap {
+left: calc(var(--h-cap) / -2);
+top: calc(var(--h-cap) / -2);
+width: var(--h-cap);
+height: var(--h-cap);
+border-radius: 50%;
+}
+#S {
+color: #8e35ff;
+rotate: 120deg;
+}
+#S .bar {
+left: calc(var(--s-w) / -2);
+top: calc(var(--s-len) * -1);
+width: var(--s-w);
+height: calc(var(--s-len) + var(--s-tail));
+border-radius: 0;
+}
+#S .cap {
+left: calc(var(--s-cap) / -2);
+top: calc(var(--s-cap) / -2);
+width: var(--s-cap);
+height: var(--s-cap);
+border-radius: 50%;
+}
+</style>
+<div class="hand" id="M">
+<i class="bar"></i>
+<i class="cap"></i>
+</div>
+<div class="hand" id="H">
+<i class="bar"></i>
+<i class="cap"></i>
+</div>
+<div class="hand" id="S">
+<i class="bar"></i>
+<i class="cap"></i>
+</div>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#a66d8c">
+<meta name="description" content="decayTime：一個由 1440 行寫成的時鐘，每過一分鐘就少一行。">
+<title>decayTime</title>
+<link rel="icon" href="data:,">
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #a66d8c; }
+  iframe { position: fixed; inset: 0; width: 100%; height: 100%; border: 0; display: block; background: transparent; }
+  iframe.next { visibility: hidden; }
+  .note { position: fixed; inset: auto 16px 16px; font: 12px/1.5 ui-monospace, Menlo, monospace; color: #fff; }
+</style>
+</head>
+<body>
+<script>
+/*
+  decayTime — 殼（這一層不會壞）
+  每次載入：今天過了 m 分鐘，就從 clock.html 隨機刪掉 m 行，把剩下的交給瀏覽器去解析。
+  頁面開著的時候，每到整分再多刪一行；過了午夜一切歸零、重新完整。
+  ?t=13:19 → 預覽那個時刻的毀壞程度（固定不再增加，每次重整都是新的隨機組合）。
+  ?src=clock-chaos.html → 換一個版本來毀壞（同資料夾內的 .html）。
+*/
+(async function () {
+  const params = new URLSearchParams(location.search);
+  const SOURCE = /^[\w.-]+\.html$/.test(params.get('src') || '') ? params.get('src') : 'clock.html';
+
+  // ?t=HH:MM preview
+  const q = (params.get('t') || '').match(/^(\d{1,2}):(\d{2})$/);
+  const frozen = q && Number(q[2]) < 60 ? Math.min(1440, Number(q[1]) * 60 + Number(q[2])) : null;
+
+  let lines;
+  try {
+    const res = await fetch(SOURCE, { cache: 'no-store' });
+    if (!res.ok) throw new Error(res.status);
+    lines = (await res.text()).split(/\r?\n/);
+    if (lines[lines.length - 1] === '') lines.pop();
+  } catch (err) {
+    const p = document.createElement('p');
+    p.className = 'note';
+    p.textContent = '讀不到 ' + SOURCE + '。請放在同一個資料夾，並透過 http(s) 開啟（例如 GitHub Pages），file:// 無法讀取。';
+    document.body.appendChild(p);
+    return;
+  }
+
+  const minuteOfDay = () => { const d = new Date(); return d.getHours() * 60 + d.getMinutes(); };
+
+  // a random order of death for this visit (Fisher–Yates)
+  const shuffle = () => {
+    const o = lines.map((_, i) => i);
+    for (let i = o.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [o[i], o[j]] = [o[j], o[i]];
+    }
+    return o;
+  };
+
+  let order = shuffle();
+  let current = null;
+  let shown = -1;
+
+  function render(m) {
+    // m minutes of a 1440-minute day; scaled if the file is not exactly 1440 lines
+    const dead = new Set(order.slice(0, Math.round(m * lines.length / 1440)));
+    const html = lines.filter((_, i) => !dead.has(i)).join('\n');
+    const url = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
+    const next = document.createElement('iframe');
+    next.title = 'decayTime';
+    if (current) next.className = 'next';   // keep the old one on screen until the new one has loaded
+    let done = false;
+    const swap = () => {
+      if (done) return;
+      done = true;
+      next.className = '';
+      if (current) current.remove();
+      current = next;
+      URL.revokeObjectURL(url);
+    };
+    next.addEventListener('load', swap);
+    setTimeout(swap, 4000);
+    next.src = url;
+    document.body.appendChild(next);
+    shown = m;
+  }
+
+  function step() {
+    const m = frozen !== null ? frozen : minuteOfDay();
+    if (frozen === null && m < shown) order = shuffle();   // past midnight: a new day, a new order
+    if (m !== shown) render(m);
+  }
+
+  step();
+  if (frozen === null) {
+    (function wait() {
+      setTimeout(() => { step(); wait(); }, 60000 - (Date.now() % 60000) + 30);
+    })();
+  }
+
+  // the shell always wears whatever background clock.html is wearing right now
+  const meta = document.querySelector('meta[name="theme-color"]');
+  const clear = (c) => !c || c === 'transparent' || c === 'rgba(0, 0, 0, 0)';
+  let last = '';
+  (function sync() {
+    requestAnimationFrame(sync);
+    let c = '';
+    try {
+      const win = current && current.contentWindow;
+      const doc = win && win.document;
+      if (doc && doc.documentElement) {
+        c = win.getComputedStyle(doc.documentElement).backgroundColor;
+        if (clear(c) && doc.body) c = win.getComputedStyle(doc.body).backgroundColor;
+      }
+    } catch (e) { /* not readable: leave as is */ }
+    if (current && clear(c)) c = '#ffffff';   // a page with no background is a white page
+    if (c && c !== last) {
+      last = c;
+      document.documentElement.style.background = c;
+      document.body.style.background = c;
+      if (meta) meta.content = c;
+    }
+  })();
+})();
+</script>
+</body>
+</html>
